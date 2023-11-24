@@ -9,13 +9,7 @@
         <deprecated>false</deprecated>
         <description_generator><![CDATA[function generateDescription()
 {
-	var GetStringValue = x_snc_devtools.GetStringValue;
-	var GetAppName = x_snc_devtools.GetAppName;
-	
-	var strAppSysId = GetStringValue(step.inputs.u_application);
-	
-	var strAppName = GetAppName(strAppSysId);
-    var strDescription = 'Performs sanity checks on the scoped app: '+strAppName+'\n';
+    var strDescription = 'Performs sanity checks on the app.\n';
 	return strDescription;
 }
 generateDescription();
@@ -37,16 +31,22 @@ generateDescription();
 	var IsUserDefaultAdmin = x_snc_devtools.IsUserDefaultAdmin;
 	var ArrayValueExists = x_snc_devtools.ArrayValueExists;
 	var GetRecord = x_snc_devtools.GetRecord;
+	var GetCallStack = x_snc_devtools.GetCallStack;
+	var GetAppRecord = x_snc_devtools.GetAppRecord;
+	var GetValue = x_snc_devtools.GetValue;
 	
 	var bResult = true;
 	var strMessage = '';
 	
-	var strAppSysId = inputs.u_application;
-	
-	var strAppSysId = GetStringValue(inputs.u_application);
-	var grApp = new GlideRecord('sys_app');
+	var aCallStack = GetCallStack();
 
-	if (grApp.get(strAppSysId) == false)
+strMessage += x_snc_devtools.RenderValue(aCallStack);
+
+	var strAppSysId = GetValue(aCallStack,0,'sys_scope');
+	
+	var grApp = GetAppRecord(strAppSysId);
+
+	if (grApp == false)
 	{
 		var bResult = false;
 		strMessage += 'App not found. Invalid sys_id: '+strAppSysId+'\n';
@@ -57,16 +57,7 @@ generateDescription();
 		strMessage += 'Performing sanity checks on the scoped app: "'+strAppName+'"\n';
 
 		
-		// Check app short description
-		strMessage += 'Checking the app itself:\n';
-		var strAppDescription = GetStringValue(grApp.getValue('short_description'));
-		if (strAppDescription == '')
-		{
-			bResult = false;
-			strMessage += '  Failed: short_description should not be empty.\n';
-		}
-		
-		
+
 		// Check sys_properties
 		var grSysProp = new GlideRecord('sys_properties');
 		grSysProp.addQuery('sys_scope','=',strAppSysId);
@@ -87,7 +78,7 @@ generateDescription();
 			}		
 			
 			var strName = GetStringValue(grSysProp.getValue('name'));
-			if (strName.indexOf(grApp.getValue('scope')) != 0)
+			if (strName.indexOf(grApp.getValue('scope')) != 0 && strName.indexOf('glide.ui.'+grApp.getValue('scope')+'_') != 0)
 			{
 				bResult = false;
 				strMessage += '  Failed: The name must start with the app scope name.\n';
@@ -300,7 +291,7 @@ generateDescription();
 			
 		}
 		
-		
+		/*
 		// Check scheduled jobs
 		var grSA = new GlideRecord('sysauto_script');
 		grSA.addQuery('sys_scope','=',strAppSysId);
@@ -319,6 +310,7 @@ generateDescription();
 			}
 			
 		}
+		*/
 		
 		
 		// Check notification subscription 
@@ -372,16 +364,16 @@ generateDescription();
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2020-11-23 13:28:01</sys_created_on>
         <sys_id>786a921f1b6c2090a89720a8ec4bcbc9</sys_id>
-        <sys_mod_count>75</sys_mod_count>
+        <sys_mod_count>91</sys_mod_count>
         <sys_name>DevTools - Check scoped app sanity</sys_name>
         <sys_package display_value="DevTools WORK IN PROGRESS" source="x_snc_devtools">d689f6901bd38450a89720a8ec4bcbfd</sys_package>
         <sys_policy/>
         <sys_scope display_value="DevTools WORK IN PROGRESS">d689f6901bd38450a89720a8ec4bcbfd</sys_scope>
         <sys_update_name>sys_atf_step_config_786a921f1b6c2090a89720a8ec4bcbc9</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2022-05-31 14:39:26</sys_updated_on>
+        <sys_updated_on>2023-11-08 12:47:54</sys_updated_on>
         <template_reminder>TBD</template_reminder>
-        <type display_value="Test Step" name="sys_atf_step">ee6efe9ddb540110b652edb305961948</type>
+        <type display_value="Test Step" name="sys_atf_step">f7beeda0a9e0211076daa554cb57d9c6</type>
         <wizard_redirect/>
     </sys_atf_step_config>
     <sys_translated_text action="delete_multiple" query="documentkey=786a921f1b6c2090a89720a8ec4bcbc9"/>

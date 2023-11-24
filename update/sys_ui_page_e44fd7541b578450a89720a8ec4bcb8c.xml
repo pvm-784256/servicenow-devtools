@@ -10,25 +10,27 @@
 <div style="padding-left: 20px;">
 <span style="visibility: hidden;">_CUT_HERE_</span>
 	<g2:no_escape>$[
-		var docapi = new DocumentationAPI('d689f6901bd38450a89720a8ec4bcbfd');
+		var docapi = new DocumentationAPI('x_snc_devtools');
 		docapi.RenderHeader();
 	]</g2:no_escape>
 	
-	<p>Welcome to the DevTools - created and maintained by&#160;<a href="mailto:sascha.wildgrube@servicenow.com">Sascha Wildgrube</a>.</p>
+	<p>Welcome to DevTools - created and maintained by&#160;<a href="mailto:sascha.wildgrube@servicenow.com">Sascha Wildgrube</a>.</p>
 
 	<h2>Overview</h2> 
-	<p>DevTools contains a number of&#160;<b>script includes</b>&#160;with useful javascript functions and classes like a GetType() function that really works. A few&#160;<b>UI improvements</b>&#160;like the Re-Test button in the test result form and&#160;<b>shortcuts</b>&#160;to various - sometimes hidden - views and system properties in your instance.</p>
+	<g2:no_escape>$[
+		docapi.RenderDescription();  
+	]</g2:no_escape>	
 
 	<h2>Disclaimer</h2>
 	<g2:no_escape>$[docapi.RenderDisclaimer()]</g2:no_escape>	
 	
-	<p>Some features contained on DevTools and the techniques being used might be considered as a violation of security policies. Please make sure any use is based on conscious choice and careful assessment. This specifically applies to the functions RunScriptInScope() and RunScriptInGlobalScope() - which are used in many DevTools functions internally. These features are enabled by setting the system property&#160;<a href="/sys_properties?sys_id=9e52826587120300cf2d5fb736cb0b7f" target="_blank">glide.record.legacy_cross_scope_access_policy_in_script</a>&#160;to "true".</p>
+	<p>Some features contained on DevTools and the techniques being used might be considered as a violation of security policies. Please make sure any use is based on conscious choice and careful assessment. This specifically applies to the functionsn&#160;<a href="/nav_to.do?uri=sys_script_include.do?sys_id=cc44a1c91b4b7450edf3642aab4bcb13" target="_blank">RunScriptInScope()</a>&#160;and&#160;<a href="/nav_to.do?uri=sys_script_include.do?sys_id=7303bde9db30a410ba15a35305961968" target="_blank">RunScriptInGlobalScope()</a>&#160;- which are used in many DevTools functions internally. These features are enabled by setting the system property&#160;<a href="/nav_to.do?uri=sys_properties.do?sys_id=9e52826587120300cf2d5fb736cb0b7f" target="_blank">glide.record.legacy_cross_scope_access_policy_in_script</a>&#160;to "true".</p>
 	
 	<h2>System Requirements</h2>
 	<ul>
 		<g2:no_escape>$[
 			docapi.RenderSystemRequirements(
-				'San Diego,Tokyo',
+				'Utah,Vancouver',
 				true,
 				AppGetDependencies());
 		]</g2:no_escape>	
@@ -36,12 +38,12 @@
 	
 	<h2>Installation</h2>
 	<ol>
+		<li style="color: red; font-weight: bold;">Set the system property&#160;<a href="/nav_to.do?uri=sys_properties.do?sys_id=9e52826587120300cf2d5fb736cb0b7f" target="_blank">glide.record.legacy_cross_scope_access_policy_in_script</a>&#160;to "true".</li> 
 		<g2:no_escape>$[
 			docapi.RenderInstallationInstructionsImportFromSourceControl(
 				'DevTools',
 				'https://github.com/saschawildgrube/servicenow-devtools');
 		]</g2:no_escape>
-		<li>Set the system property&#160;<a href="/sys_properties?sys_id=9e52826587120300cf2d5fb736cb0b7f" target="_blank">glide.record.legacy_cross_scope_access_policy_in_script</a>&#160;to "true".</li> 
 		<g2:no_escape>$[
 			docapi.RenderInstallationInstructionsAppInstall();
 		]</g2:no_escape>		
@@ -71,16 +73,71 @@ gs.info('After DeleteAllData(): '+x_snc_devtools.RenderValue(testdata.GetAllData
 	<h2>Features</h2>
 
 	<h3>Script Includes and UI scripts</h3>
-	<p>DevTools contains a wide varienty of functions and classes (server-side and client-side) for re-use. Please refer to the reference section for details.</p>
+	<p>DevTools contains a wide variety of functions and classes (server-side and client-side) for re-use. Please refer to the reference section for details.</p>
 	
-	<h3>Cross-scope Scripting</h3>
-	<p>The function&#160;<a href="/nav_to.do?uri=sys_script_include.do?sys_id=cc44a1c91b4b7450edf3642aab4bcb13" target="_blank">RunScriptInScope</a>&#160;allows to execute code in any scope no matter what the current execution scope is. The function&#160;<a href="/nav_to.do?uri=sys_script_include.do?sys_id=7303bde9db30a410ba15a35305961968" target="_blank">RunScriptInGlobalScope</a>&#160;specifically allows code execution in the global scope from any other other scope. This allows the use of API functions and classes which are only available in the global scope and NOT in scoped scripts. This allows more flexibility when developing scoped apps - and effectively removes any barriers between apps. The authors of DevTools believe that this is a good thing. Application scopes are NOT a security boundary. Scoped APIs have just not been implemented completely - so using these techniques serves as a workaround for incomplete scoped API implementation. It also allows scoped apps to interact with each other which would otherwise be impossible. We also believe that deployments via update sets are a method of the past. Features should always be deployed as part of scoped (or global scoped) applications via source control or AppRepo. This however requires such apps to perform installation steps - like manipulations of OOTB records - which would not be possible from within their own scope. Hence cross-scope scripting techniques finally enable fully automated deployment pipelines without the need of any manual interventions.</p>
+	<h3>UI Actions</h3>
+	<p>DevTools contains a number of very helpful UI Actions. One of the most powerful features is the "Save" button with active scope switching capabilities. Never ever loose changes because of switching between scopes and browser tabs at the same time.</p>
+	
+	<h3>Cross Scope Scripting</h3>
+	<p>The function&#160;<a href="/nav_to.do?uri=sys_script_include.do?sys_id=cc44a1c91b4b7450edf3642aab4bcb13" target="_blank">RunScriptInScope()</a>&#160;allows to execute code in any scope no matter what the current execution scope is. The function&#160;<a href="/nav_to.do?uri=sys_script_include.do?sys_id=7303bde9db30a410ba15a35305961968" target="_blank">RunScriptInGlobalScope()</a>&#160;specifically allows code execution in the global scope from any other other scope. This allows the use of API functions and classes which are only available in the global scope and NOT in scoped scripts. This allows more flexibility when developing scoped apps - and effectively removes any barriers between apps. The authors of DevTools believe that this is a good thing. Application scopes are NOT a security boundary. Scoped APIs have just not been implemented completely - so using these techniques serves as a workaround for incomplete scoped API implementation. It also allows scoped apps to interact with each other which would otherwise be impossible. We also believe that deployments via update sets are a method of the past. Features should always be deployed as part of scoped (or global scoped) applications via source control or AppRepo. This however requires such apps to perform installation steps - like manipulations of OOTB records - which would not be possible from within their own scope. Hence cross scope scripting techniques finally enable fully automated deployment pipelines without the need of any manual interventions.</p>
+	<p>To enable cross scope scripting the system property&#160;<a href="/nav_to.do?uri=sys_properties.do?sys_id=9e52826587120300cf2d5fb736cb0b7f" target="_blank">glide.record.legacy_cross_scope_access_policy_in_script</a>&#160;must be set to true. As of the release of this DevTools version the only publicly accessible documentation of the system property's behaviour can be found in the knowledge base article&#160;<a href="https://support.servicenow.com/kb?id=kb_article_view&amp;sysparm_article=KB0779287" target="_blank">KB0779287</a>.</p>
+	
+	<h3>Baseline Application Version</h3>
+	<p>The "Baseline Version" button on the application form can be used to prepare an application to be baselined. To baseline an application means to provide a new version of an application from a development environment to downstream instances or for public availability. The function AppVersionBaseline() is executed to perform a number of cleanup tasks.</p>
+	
+	<h3>Dependency Management</h3>
+	<p>In an ideal world all customizations are implemented in scoped apps (and some global scoped apps if there are really good reasons). And in that same ideal world, non of these apps have any dependencies. Each app can be installed and uninstalled independently. The real corporate world, however, is complex, messy and full of dependencies. For good reasons, separate capablities are implemented as separate apps and hence these apps have dependencies to each other. For example: apps add fields to tables that are defined in other apps, they run scripts from other apps, or rely on logic implemented in flows from other apps.</p>
+	<p>Such dependencies must be managed - that means, the requirements of one app towards other apps and their minimum versions, must be documented and considered when performing deployments.</p>
+	<p>DevTools provides means for that documentaton and visualization of these dependencies. Go to the sys_app form, switch to the DevTools view to find the dependencies related list (not the OOTB dependencies). The UI action "Dependencies" opens a ui page that visualizes the dependency requirements and status of the current app as a tree and as a list, which can be used as a deployment plan.</p>
+	
+	<h3>Technical Debt Management</h3>
+	<p>A Technical Debt is any code or structure that a development team considers as to-be changed at a later point in time because it implies some form of burden to the development and deployment work to be done today.</p>
+	<p>Technical debts need to be managed - and that starts with documenting it. DevTools contains a table to store Technical Debt records which are part of an application and hence are deployed to target-systems. This allows for reporting, work planning and automated documentation.</p>
+	<p>Unfinished, defective or deprecated features that are part of an application at the time of a version baseline also represent a form of Technical Debt - as all of these require future work. Such features should eventually be hidden from users or prevented to impact the behavior of an application. To control that each Technical Debt record has a boolean "switch" that can be used to control logic around these features. Developers can use the following pattern to control how code related to a feature that is currently considered as (or associated with) a Technical Debt should behave:</p>
+	<pre>if (x_snc_devtools.GetTechnicalDebtSwitchState('x_your_scope','id_of_the_technical_debt') == true)
+{
+	// Hide unfinished work
+	// Deactivate defective features
+	// Deactivate deprecated features
+}</pre>
+	<p>If the Technical Debt with the given id exists and the switch is set to true, the function returns true, otherwise false.</p>
+	
+	<h3>Service Portal Deactivation</h3>
+	<p>DevTools allows you to deactivate specific Service Portals.</p>
+	<p>A new field "Active" is added to the&#160;<a href="/nav_to.do?uri=sp_portal_list.do%3F" target="_blank">sp_portal</a>&#160;table. Once set to false, the corresponding Service Portal will just disappear and is no longer accessible.</p>
+
+	<h3>Fix the Flow Execution Domain Issue described in KB0998966</h3>
+	<p>DevTools contains the business rule&#160;<a href="/nav_to.do?uri=sys_script.do?sys_id=ad95de3247f6d510a4b0d4fe536d432b" target="_blank">sys_flow_context - Set domain</a>&#160;which implements the workaround to the issue described in&#160;<a href="https://support.servicenow.com/kb?id=kb_article_view&amp;sysparm_article=KB0998966" target="_blank">KB0998966</a>.</p> 
+	
+	<h3>Prevent useless Instance Scan check executions</h3>
+	<p>Instance Scan linter checks execute on all records that have at least one script field. However, some records may have a script field but do not use it or the script field does not have to be checked because it is not relevant (based on the configuration of that record).</p>
+	<p>Examples are:</p>
+	<ol>
+		<li>sys_hub_flow_variable records are derived from sys_dictionary which contains a script field - but for a sys_hub_flow_variable record this script field is never relevant.</li>
+		<li>sys_security_acl records where the script field is only relevant if the field "advanced" is set to true.</li>
+	</ol>
+	<p>The business rule &#160;<a href="/nav_to.do?uri=sys_script.do?sys_id=b7fad21a1be06d105b76777d8b4bcbbe" target="_blank">sys_metadata - Prevent useless checks</a>&#160;prevents checks from running in such cases which may significantly reduce the time required to scan such records - or apps that contain such records.</p>
+	
+	<h3>Create User by Email</h3>
+	<p>DevTools features the "Create User by Email" button to the User list. Follow these steps to configure the feature:</p>
+	<ol>
+		<li>Set the DevTools system property&#160;<a href="/nav_to.do?uri=sys_properties.do?sys_id=6f6bf0961b92a150cd6153d16b4bcb14" target="_blank">ui.createuserbyemail_button</a>&#160;to "true".</li> 
+		<li>Create the GLOBAL system property "devtools.createuserbyemail.groups" and add a comma separated list of group Sys IDs to be assigned to the new users if needed.</li>
+	</ol>
+
+	<h3>Create and Send Credentials</h3>
+	<p>DevTools features the "Generate and Send Credentials" button to the User form. Follow these steps to configure the feature:</p>
+	<ol>
+		<li>Set the DevTools system property&#160;<a href="/nav_to.do?uri=sys_properties.do?sys_id=128efb851b6a2110cd6153d16b4bcbc9" target="_blank">ui.generateandsendcredentials_button</a>&#160;to "true".</li> 
+		<li>Verify that the GLOBAL system property&#160;<a href="/nav_to.do?uri=sys_properties.do?sys_id=856303e90a0a0bc50164129959388444" target="_blank">glide.email.smtp.active</a>&#160;is set to "true".</li>
+	</ol>
+	
 	
 	<h3>Field Formatting</h3>
-	<p>DevTools can help to format (float) numbers in forms, related lists and list views in the classic UI. Follow these steps to activate the feature:</p>
+	<p>DevTools can help to format (float) numbers in forms, related lists and list views in the classic UI - Polaris, however, is not supported yet! Follow these steps to activate the feature:</p>
 	<ol>
-		<li>Set the DevTools system property&#160;<a href="/sys_properties?sys_id=b9fbd89cdb0d8954bcced03cd39619cb" target="_blank">ui.formatting</a>&#160;to "true".</li> 
-		<li>Implement the&#160;<a href="/sys_extension_point.do?sys_id=e3a183be1bae7010edf3642aab4bcbdc" target="_blank">DevTools extension point</a>.</li>
+		<li>Set the DevTools system property&#160;<a href="/nav_to.do?uri=sys_properties.do?sys_id=b9fbd89cdb0d8954bcced03cd39619cb" target="_blank">ui.formatting</a>&#160;to "true".</li> 
+		<li>Implement the&#160;<a href="/nav_to.do?uri=sys_extension_point.do?sys_id=e3a183be1bae7010edf3642aab4bcbdc" target="_blank">DevTools extension point</a>.</li>
 		<li>Implement the function DevToolsGetFormatConfig using the following template:
 <pre>
 function DevToolsGetFormatConfig(grRecord)
@@ -110,13 +167,8 @@ function DevToolsGetFormatConfig(grRecord)
 		<li>You may consider session or transaction caching techniques to improve performance.</li>
 	</ol>
 	
-	<h3>Service Portal Deactivation</h3>
-	<p>DevTools allows you to deactivate specific Service Portals.</p>
-	<p>A new field "Active" is added to the&#160;<a href="/nav_to.do?uri=sp_portal_list.do%3F" target="_blank">sp_portal</a>&#160;table. Once set to false, the corresponding Service Portal will just disappear and is no longer accessible.</p>
-
-	<h3>Fix the Flow Execution Domain Issue described in KB0998966</h3>
-	<p>DevTools contains the business rule&#160;<a href="/nav_to.do?uri=sys_script.do?sys_id=ad95de3247f6d510a4b0d4fe536d432b" target="_blank">sys_flow_context - Set domain</a>&#160;which implements the workaround to the issue described in&#160;<a href="https://support.servicenow.com/kb?id=kb_article_view&amp;sysparm_article=KB0998966" target="_blank">KB0998966</a>.</p> 
-	
+	<h3>Manage record order (or rank)</h3>
+	<p>The function RecordManageOrder() can be used set a given integer field on a table into a perfect sequence. The function is designed to be called in an async after update/insert/delete business rule.</p> 
 	
 	<h2>Reference</h2>
 
@@ -149,13 +201,416 @@ function DevToolsGetFormatConfig(grRecord)
 	<h2>Release Notes</h2>
 	
 <!--
-	<h3>1.5_.0 - 2022-TODO</h3>
+	<h3>1.7_.0 - 2023-TODO</h3>
 	<ol>
 		<li>TODO</li>
 	</ol>
 -->	
+
+	<h3>1.75.1 - 2023-11-10</h3>
+	<ol>
+		<li>Added "navpage.do" to the patterns listed in IsPrimaryRequestUrl(). This resolves a defect that can be observed when the evaluator log error mechanism is active AND the system property "glide.entry.first.page.script" points to a function to be executed to determine the landing page after login.</li>
+	</ol>
+
 	
-	<h3>1.52.0 - 2022-01-04</h3>
+	<h3>1.75.0 - 2023-11-09</h3>
+	<ol>
+		<li>Added function CreateTestUser().</li>
+		<li>Added UI action "Create Test User" on the sys_user table to create new test users. The UI action is only visible if the system property "x_snc_devtools.ui.createtestuser_button" is true (which is false by default).</li>
+		<li>Added function IsTestUser().</li>
+		<li>Added function InstallerAPI::ActivateNotification().</li>
+		<li>HttpRequest() now handles exceptions thrown by RESTMessageV2::execute().</li> 
+		<li>Clone() no longer produces the log message "ScopedRhinoObjectWrapper: not a wrappable type: com.glide.script.FieldGlideDescriptor".</li>
+		<li>The view rule to enforce the "DevTools" view on sys_app did not work. This has been fixed.</li>
+		<li>Removed specific view "DevTools App Log" and "DevTools Debug Log" - both menu items now use the "DevTools" view.</li>
+		<li>AppBuilder() now sets the "DevTools" for the "Log" menu item.</li>
+		<li>GetAllTables() removes most not needed "sys_" attributes from the result array to reduce memory consumption.</li>
+		<li>GetTableFromSysId() now also considers tables scan_result, sys_atf_test_result and sys_atf_test_suite_result as a priority and finds Sys IDs in these tables way faster.</li> 
+		<li>AppInstall() now deactivates yet another "Save" UI action to avoid duplicate "Save" buttons.</li>
+	</ol>	
+	
+	<h3>1.74.0 - 2023-10-30</h3>
+	<ol>
+		<li>The "Save" button now supports setting the global flag on sys_ui_script records directly. No more background script executions are required.</li>
+		<li>RenderValue() no longer produces the log message "ScopedRhinoObjectWrapper: not a wrappable type: com.glide.script.FieldGlideDescriptor".</li>
+		<li>Added sys_plugns to the link directory.</li>
+		<li>Fixed more defect in GetDependencyListFromTree() to cover scenarios where the same dependency shows up more than once in the dependency tree.</li>
+		<li>GetDependencyTreeErrorCount() now also considers the status summary.</li>
+	</ol>	
+	
+	<h3>1.73.0 - 2023-10-26</h3>
+	<ol>
+		<li>Fixed a defect in GetDependencyListFromTree() that caused the dependency status summary to be reported as "ok" in case of nested missing packages.</li>
+		<li>Added dependency status "incompatible_version" to CompareDependencyStatus().</li>
+		<li>A new business rule prevents duplicate dependencies to be added to an application.</li>
+		<li>Menu item "Query Log" no longer filters by log level.</li>
+		<li>Improved installation steps order.</li>
+	</ol>	
+	
+	<h3>1.72.0 - 2023-10-22</h3>
+	<ol>
+		<li>Added view rule to enforce the DevTools view on the sys_app form.</li>
+		<li>Added view rule to enforce the DevTools view on the sysauto_script form.</li>
+		<li>Added function RecordManageOrder().</li>
+		<li>Added function GlideRecordRestoreLocation().</li>
+		<li>Added function CreateTechnicalUser().</li>
+		<li>Added function GetTableRecord().</li>
+		<li>TestAPI::Log() can now render objects and arrays directly.</li>
+		<li>RecordSetValue() - and subsequently InstallerAPI::RecordSetValue() - can now work on sys_number records properly.</li>
+		<li>Added more urls to IsPrimaryRequestUrl() which have been identified in Vancouver.</li>
+		<li>Added more patterns to GetEvaluatorErrorExceptionPatterns().</li>
+		<li>AppSetDefaults() now sets the logging.verbosity system property to "debug".</li>
+		<li>Added UI Script LogError().</li>
+		<li>UI Script ServerRequest() now detects the use of the parameter "name" which is not supported since the "name" parameter must contain the function of the client callable script include to be executed.</li>
+		<li>The UI action "Generate and Send Credentials" is no longer available for technical users.</li>
+		<li>Added UI action "Create Technical User" on the sys_user table to create new technical users. The UI action is only visible if the system property "x_snc_devtools.ui.createtechnicaluser_button" is true (which is false by default).</li>
+		<li>DocumentationAPI::RenderDescription() now supports line breaks.</li>
+		<li>Improved the DevTools view for the sys_app form, added "Claimed Global App Files" related list.</li>
+		<li>Improved the DevTools view for the sysauto_script form.</li>
+		<li>WhatRuns() now considers the order of sysrule_view records.</li>
+		<li>Added DevTools view for sys_ui_bookmark_group that contains the bookmarks related list.</li>
+		<li>Added functionality that allows to create cross-scope sysrule_view records.</li>
+	</ol>	
+	
+	<h3>1.71.0 - 2023-10-06</h3>
+	<ol>
+		<li>Tokyo is no longer actively supported.</li>
+		<li>DevTools is fully tested with Vancouver.</li>
+		<li>MakeUserName() now considers test and technical users and builds their names according to the naming convention documented in the whitepaper "A mature development and deployment process".</li>
+		<li>UI Script Clone() now also handles arrays.</li>
+		<li>GetValue() and UI script GetValue() now supports 10 parameters.</li>
+		<li>SetValue() and UI script SetValue() now supports 10 parameters.</li>
+		<li>Introduced InstallerAPI::DictionarySetValue() to modify sys_dictionary records.</li> 
+		<li>DocumentationAPI constructor now also accepts sys_app records and scope names (like GetAppRecord()).</li>
+		<li>GetEvaluatorErrorExceptionPatterns() is now accessible to all scopes.</li>
+		<li>Created script macro for GetEvaluatorErrorExceptionPatterns().</li>
+		<li>Added more evaluator log exception patterns in GetEvaluatorErrorExceptionPatterns().</li>
+		<li>Added ATF test for DocumentationAPI.</li>
+	</ol>	
+	
+	<h3>1.70.0 - 2023-09-27</h3>
+	<ol>
+		<li>Added function HtmlRenderRedirect().</li>
+		<li>Added function InstallerAPI::SetHomePage().</li>
+		<li>Added function CompareDependencyStatus().</li>
+		<li>Fixed a defect in GetDependencyListFromTree() that led to incorrect dependency status summaries.</li>
+		<li>Improved ExecuteBusinessRuleShowRecentEvaluatorErrors() to avoid recursive calls to the "sys_metadata - show evaluator errors" business rule - and littering the script execution debug output.</li>
+		<li>Refactored HtmlRenderPageEvaluatorLog() to use the new function HtmlRenderRedirect().</li>
+		<li>Improved IsValidUrl() to correctly accept urls that contain round brackets "(" and ")" in the GET query part.</li> 
+		<li>The "Installation" ATF test now verifies that glide.caller_class.enabled is NOT to to false as this would prevent various DevTools functions to work properly.</li>
+	</ol>	
+	
+	<h3>1.69.0 - 2023-09-19</h3>
+	<ol>
+		<li>Added function InstallerAPI::ActivateACL().</li>
+		<li>Added more patterns to GetEvaluatorErrorExceptionPatterns().</li>
+		<li>Fixed a defect in GetParentRecord().</li>
+	</ol>	
+	
+	<h3>1.68.0 - 2023-09-18</h3>
+	<ol>
+		<li>Added function GetRecentEvaluatorErrors().</li>
+		<li>Added a business rule for sys_metadata to display recent evaluator errors on all screens.</li>  
+		<li>Added function IsPrimaryRequestUrl().</li>
+		<li>Improved function BusinessRuleGetOperation() to cover the case that the operation() function is not defined in a GlideRecord object.</li> 
+		<li>GetParentRecord() and the "Up" button now also supports sp_rectangle_menu_item.</li>
+		<li>GetParentRecord() and the "Up" button now also supports sys_user.</li>
+		<li>The menu item "Evaluator Log" now uses a UI Page to forward to the filtered and sorted syslog list view so that the exception patterns defined in function GetEvaluatorErrorExceptionPatterns().</li>
+	</ol>	
+	
+	<h3>1.67.0 - 2023-09-03</h3>
+	<ol>
+		<li>Added UI Script GetInstanceNewRecordUri().</li>
+		<li>Added UI Script GetInstanceNewRecordPath().</li>
+		<li>Added UI Script GetProperties().</li>
+		<li>Added UI Script GetFunctions().</li>
+		<li>Added UI Script BindAllFunctionsToThis().</li>
+		<li>Added business rule "sys_ux_registry_m2m_category - sort" to sort Workspaces in the menu alphabetically.</li>
+		<li>GetRecord() now also accepts a GlideRecord object as the second parameter. If the GlideRecord object represents a record in the given table, the same GlideRecord object is returned.</li>
+		<li>GetParentRecord() and the "Up" button now also supports sys_ui_bookmark.</li>
+		<li>GetParentRecord() and the "Up" button now also supports sys_atf_test_result_step.</li>
+		<li>Fixed a defect in IsValidUrl() which led to some urls not being recognized as valid (e.g. "https://www.example.com/path?").</li>
+		<li>Fixed a defect in TestAPI::TestCase_GetValue(). The 6th parameter was not forwarded to the TestCase function correctly. This has been fixed. Thanks to https://github.com/jessems/ for spotting this.</li>
+		<li>Improved installation instructions by putting more emphasis on setting the system property to true hat enabled cross scope scripting.</li>
+	</ol>	
+	
+	<h3>1.66.0 - 2023-08-17</h3>
+	<ol>
+		<li>Added function ProcessEvaluatorErrors() to set the level of Evaluator "Warnings" to "Error" - as it should be!</li>
+		<li>Added function HtmlRenderRoundedBox().</li>
+		<li>HtmlRenderScript() and HtmlRenderScriptUrl() now support module scripts.</li>
+		<li>Technical Debts now have the "Description" field to allow for a more detailed description of the debt.</li>
+		<li>Added a message on the sysrule_view form to inform the developer on how to set a table that is defined in a different scope.</li>
+		<li>The dependency "Reason" is now displayed in the application form related list.</li>
+		<li>GetDependencyListFromTree() now removes the "_dependencies" field.</li>
+		<li>GetDependencyListFromTree() now adds the "repo_url" field to all package objects in the "list" array for consistency.</li> 
+		<li>AppVersionBaseline() now updates the repository and documentation url fields of applications if possible.</li>
+		<li>AppVersionBaseline() now also calls the application's AppBaseline() function if it exists.</li>
+		<li>AppVersionBaseline() is now configured to be accessible from all scopes.</li>
+		<li>Added chapter on "Baseline Application Version" to the manual.</li>
+	</ol>	
+	
+	<h3>1.65.0 - 2023-07-25</h3>
+	<ol>
+		<li>Dependencies now contain the "Reason" field to document why the application is required.</li>
+		<li>Dependencies now contain the "Package Class" field so that plugins, custom applications and store apps can be recognized.</li>
+		<li>Added function GetAppCurrentBranch().</li>
+		<li>Application page now shows the current branch in the overview table.</li>
+		<li>Added function GetProperties().</li>
+		<li>Added function GetFunctions().</li>
+		<li>Added function BindAllFunctionsToThis().</li>
+		<li>Added function HtmlRenderOrderedList().</li>
+		<li>Added function HtmlRenderUnorderedList().</li>
+		<li>Added function GetCurrentRecord().</li>
+		<li>Added function GetCurrentUrl.</li>
+		<li>Added function GetDependencyTreeErrorCount().</li>
+		<li>Added ATF for ImageAPI. This marks full formal test coverage.</li>
+		<li>GitHubAPI::GetFilesFromBranch() now delivers an array of path names (instead of the objects returned by the GitHub API).</li> 
+		<li>GitLabAPI::GetFilesFromBranch() now delivers an array of path names (instead of the objects returned by the GitLab API).</li> 
+		<li>GetParentRecord() and the "Up" button now also support cmn_schedule_span.</li>
+		<li>Improved ImageAPI by using bind() for GetPixel() and SetPixel() to make sure "this" is resolved properly.</li> 
+		<li>Improved syntax editor macro for AppBuilder.</li>
+		<li>Improved boilerplate GetPipelineInstanceName() function created by AppBuilder().</li>
+		<li>InstanceReset() now deactivates the popup for user consent for usage analytics.</li>
+		<li>AppBuilder() created te LogWarning() function using gs.error() instead of gs.warn(). This has been fixed.</li>
+		<li>HtmlRenderDependencies() no longer displays the number of dependencies if the package is not installed.</li>
+	</ol>	
+	
+	<h3>1.64.0 - 2023-06-16</h3>
+	<ol>
+		<li>Added GetDependencyListFromTree() and refactored GetPackageDependencyList() to use it.</li>
+		<li>Added UI Script IsValidUrl().</li>
+		<li>Added method InstallerAPI::RecordDelete().</li>
+		<li>"Global" can no longer be selected as a dependency.</li>
+		<li>InstallerAPI::RecordInsertOrUpdate() now supports setting the sys_id for a new record explicitly.</li>
+		<li>InstallerAPI functions now consistently logs "No action required" in case there is no action required.</li>
+		<li>GetParentRecord() and the "Up" button now also supports item_option_new and sys_schema_attribute_m2m.</li>
+		<li>UI Script Log() now uses console.log() since jslog() is no longer supported.</li>
+		<li>AppSanity() deleted roles asociated to an ACL erroneously if more than one role is associated to an ACL. This has been fixed.</li>
+		<li>AppSanity() eventually deleted valid ACLs for create or delete operations which were not of type "record". This has been fixed.</li>
+		<li>AppSanity() now deletes all records in sys_push_notif_app_install associated to the given app.</li>
+		<li>AppSanity() now deletes records erroneously created in the application scope due to issues with PA Dashboards documented in KB0814656.</li>
+		<li>ParseXml() can now deal with xml encoded line breaks.</li>
+	</ol>
+
+	<h3>1.63.0 - 2023-06-02</h3>
+	<ol>
+		<li>Added function GetVersionFromString().</li>
+		<li>Added function GetLength().</li>
+		<li>RecordInsert() can now set the Sys ID explicitly.</li>
+		<li>GlideRecordSetValue() can now also be used to set the Sys ID if the newRecord() function has been used on the record.</li>
+		<li>GitLabAPI::GetFilesFromBranch() now supports branches with more than approx. 100 files.</li>
+		<li>GitLabAPI and GitHubAPI now count the number of requests and support the ::GetRequestCount() function to return the count.</li>
+		<li>SetAppRepo() now also sets the repo url in the application record and in all dependency records.</li>
+		<li>Added ATF test for UpdateSetDelete().</li>
+		<li>ScriptGetFunctionNames() now also works outside InstanceScan checks. Additional ATF test cases have been added.</li>
+		<li>AppBuilder() now creates LogError() and LogWarning() functions.</li>
+		<li>AppBuilder() now creates navigation modules for the application log filtered by scope instead of the message containing the application name.</li>
+		<li>Function CreateUserByEmail() now sets the user name to all lower case letters.</li>
+		<li>Added section "Create and Send Credentials" to the manual.</li>
+	</ol>
+	
+	<h3>1.62.0 - 2023-05-03</h3>
+	<ol>
+		<li>Removed deprecated table "x_snc_devtools_technical_dept".</li>
+		<li>Renamed function Warning() to LogWarning() for consistency.</li>
+		<li>Added function LogError() and PrepareLogError().</li>
+		<li>Added function SendMail().</li>
+		<li>Added function MakeUserName().</li>
+		<li>Added function GenerateAndSendCredentialsToUser().</li>
+		<li>Added UI action "Generate and Send Credentials".</li>
+		<li>Added system property "x_snc_devtools.ui.generateandsendcredentials_button" which is "false" by default.</li>
+		<li>GitLabAPI::SetApiUrl() did not add the trailing slash properly. This has been fixed.</li>
+		<li>Added ATF for RecordSaveToUpdateSet().</li>
+		<li>Added ATF for InstanceScanCheckOnApp().</li>
+	</ol>	
+	
+	<h3>1.61.0 - 2023-04-26</h3>
+	<ol>
+		<li>Function GetTechnicalDeptSwitchState() has been named incorrectly and has been renamed to GetTechnicalDebtSwitchState().</li>
+		<li>The table "x_snc_devtools_technical_dept" was also named incorrectly. A new table has been created called "x_snc_devtools_technical_debt". The old table will remain until the next release to allow for a transition. Use the following script for data migration:
+		<pre>var grDept = new GlideRecord('x_snc_devtools_technical_dept');
+grDept.query();
+while (grDept.next())
+{
+    x_snc_devtools.Log(grDept);
+    RecordQueryOrInsert('x_snc_devtools_technical_debt',
+        {
+            sys_scope: grDept.sys_scope,
+            id: grDept.id
+        },
+        {
+            short_description: grDept.short_description,
+            switch: grDept.switch
+        },
+        false);
+}</pre></li>
+		<li>Added macro for GetTechnicalDebtSwitchState().</li>
+		<li>Added function TableReparent().</li>
+		<li>Added function IsUserMaint().</li>
+		<li>Added function CreateUserByEmail().</li>
+		<li>Added the "Create User by Email" UI Action.</li>
+		<li>Added function ParseEmail().</li>
+		<li>Added functions Warning() and PrepareLogWarning().</li>
+		<li>Added UI Script IsValidEmail().</li>
+		<li>Added UI Script StringCheckRegEx.</li>
+		<li>Improved function IsUserHasRoleExactly() and its ATF test to be resilient to a missing role parameter and to check test cases with and without the user parameter.</li>
+		<li>Fixed defect in GitHubAPI::SetApiUrl().</li>
+		<li>Added function InstanceScanGetCheckFromQuery() and refactored business rule "sys_metadata - prevent useless checks" to contain less code.</li>
+		<li>Added ATF for GliderecordAddQuery().</li>
+		<li>InstallerAPI now checks if the system property "glide.record.legacy_cross_scope_access_policy_in_script" is set to true before starting the installation.</li>
+		<li>Improved ATF test for BusinessRuleGetOperation() which eventually failed as the test business rule scope was not set explicitly.</li> 
+	</ol>
+	
+	<h3>1.60.0 - 2023-04-07</h3>
+	<ol>
+		<li>San Diego is no longer actively supported.</li>
+		<li>Added function SetAppRepo() to set the url of an application repository configuration associated to an application.</li>
+		<li>Added function GetInstanceName() to retrieve the instance name.</li>
+		<li>Added function GetInstancePipelineName() which maps the real instance name to the pipeline name - if the DevTools extension point function GetInstancePipelineName() is implemented by another application.</li>
+		<li>Added functions PrepareLogInfo() and PrepareLogDebug().</li> 
+		<li>HtmlRenderTable() now accepts a string containing css styles as its 3rd parameter - and hence is now compatible with the template code in the HtmlRenderTable script macro.</li>
+		<li>InstanceReset() hides more (not needed) menu modules.</li>
+		<li>StringFormat() was not configured to be accessible from all scopes. This has been fixed.</li>
+		<li>InstallerAPI::RecordSetValue() did not check if the installation should be aborted. This has been fixed.</li>
+		<li>InstallerAPI::InstallSystemPropertyCategoryMapping() now sets the scope of the category to the category mapping.</li>
+		<li>The template code in script editor macro TestAPI has been simplified.</li>
+		<li>Improved navigation modules in section "Debug".</li>
+		<li>Moved the "Applications" navigation module to the top.</li>
+		<li>Added ATF for HtmlRenderQRCode().</li>
+		<li>Added ATF for BusinessRuleGetOperation().</li>
+		<li>Added ATF for InstanceScanGetScanResults().</li>
+		<li>Added ATF for TableColumnSetAttribute().</li>
+		<li>Added ATF for AppBuilderAddTestToSuite().</li>
+	</ol>
+	
+	<h3>1.59.0 - 2023-03-22</h3>
+	<ol>
+		<li>DevTools is fully tested in Utah.</li>
+		<li>Added function InstallerAPI::ActivateViewRule().</li>
+		<li>AppInstall() now deactivates the "GlobalApp" view rule on global scoped application forms to allow the "DevTools" view to be used.</li> 
+		<li>The test step configs "DevTools - Check app dependencies" and "DevTools - Check scoped app sanity" no longer require to specify the application - it will test the application in which the test step (and the test) is contained - which is the main use case.</li>
+		<li>Fixed an issue in the technical debt management documentation code snippet.</li>
+		<li>InstanceReset() hides more menus.</li>
+		<li>Added test for GetFormatConfig().</li>
+		<li>Added test for GetFormatConfigMultiple().</li>
+		<li>Added test for GetLinkDirectory().</li>
+		<li>Added test for AppVersionBaseline().</li>
+	</ol>	
+	
+	<h3>1.58.0 - 2023-03-14</h3>
+	<ol>
+		<li>Added function StringFormat().</li>
+		<li>Added function ParseXml().</li>
+		<li>Added function Base64Decode().</li>
+		<li>Added function Base64Encode().</li>
+		<li>Added function InstallerAPI::InsertFieldToFormSection() and updated AppInstall() accordingly.</li>
+		<li>AppBuilder() now longer creates code to set the removed log.active property in AppSetDefaults().</li>
+		<li>The Dependency Viewer now keeps hiding packages when using the tab navigation.</li>
+		<li>Improved links in DocumentationAPI functions and in the manual.</li>
+		<li>GetCleanAppName() now also trims the name to avoid leading or trailing whitespaces.</li>
+		<li>Added ATF for HtmlRenderWhatRuns().</li>
+		<li>Added ATF for GetCurrentScope().</li>
+		<li>Added ATF for IsGhostRequiredForRecordUpdate().</li>
+	</ol>	
+	
+	<h3>1.57.0 - 2023-03-09</h3>
+	<ol>
+		<li>Introduced technical debt management and the GetTechnicalDeptSwitchState() function (yes, including the typo error in the function name).</li>
+		<li>Added function DocumentationAPI::RenderDescription().</li>
+		<li>Added function GetMinimalCommonVersion().</li>
+		<li>The Script Include and the UI Script functions GetValue() now also supports arrays as the vKey1 parameter.</li>
+		<li>AddSanity() now deletes sys_atf_schedule records left behind by ATF triggered Test Suite executions.</li>
+		<li>The UI Action "Save" now supports active scope switching.</li>
+		<li>AppBuilder() no longer creates the log.active property and the generated Log() function no longer checks the property.</li>
+		<li>The Dependency Viewer and the GetDependencyList() functions now consider incompatible version requirements for the same package from different packages.</li>
+		<li>Improved rendering in the Dependency Viewer in HtmlRenderDependencies(): Dependency count is no longer displayed for circular dependencies.</li>
+		<li>The Dependency Viewer page now supports the parameter hide by which a comma separated list of Sys Ids can be provided of packages that should be HIDDEN in the tree view.</li>
+		<li>Added function TestAPI::TestCase_GetValue() and refactored the ATF test for GetValue().</li>
+		<li>Refactored the ATF test for function IsProperty().</li>
+		<li>Added sys_trigger and scan_suite_execution to the link directory.</li>
+		<li>Added ATF for HtmlRenderLinkDirectory().</li>
+		<li>Added ATF for ProgressTrackerAPI.</li>
+	</ol>
+	
+	<h3>1.56.0 - 2023-02-24</h3>
+	<ol>
+		<li>Removed the system property "x_snc_devtools.debug.log" is it was redundant to the system property "x_snc_devtools.logging.verbosity".</li> 
+		<li>Added function InstanceScanSuiteOnAppWithDependencies() to perform an Instance Scan on an application and all of its dependencies (only custom applications).</li> 
+		<li>Added function TableColumnSetAttribute() and InstallerAPI::SetTableColumnAttribute().</li>
+		<li>Added function TestAPI::TestCase_HttpRequest().</li>
+		<li>Added function IsFunction().</li>
+		<li>TestDataAPI::CreateUser() now supports setting a password.</li>
+		<li>Function HttpRequest() now supports basic auth.</li>
+		<li>Function WhatRuns() now also considers "async_always" business rules.</li>
+		<li>AppSanity() now also sets async_always for (deprecated) async business rules (https://support.servicenow.com/kb?id=kb_article_view&amp;sysparm_article=KB0951770).</li>
+		<li>AppSanity() now fixes the sys_scope vs. sys_package discrepancy in sys_metadata records.</li> 
+		<li>Added business rule "sys_metadata - sync sys_package" to sync the sys_package value to the sys_scope values.</li>
+		<li>AppVersionBaseline() now works properly with global scoped applications.</li>
+		<li>When running the installation scripts from the ui action "Run Install Scripts" some operations fail for unknown reasosns. Hence the ui action now only shows a message with instructions to use a background script.</li> 
+		<li>The DevTools Dependencies Viewer now shows the total count of packages in the list mode.</li>
+		<li>AppInstall() now sets the OOTB ui action ""Import Update Set from XML" to be a list banner button.</li>
+		<li>AppInstall() now adds the field "Description" to the business rule form.</li>
+		<li>Added DocumentationAPI::RenderRestApis() to show information of available REST APIs.</li>
+		<li>DocumentationAPI::RenderBusinessRules() now also displays the description of a business rule (if it exists).</li>
+		<li>Added more ATF test cases for GetPackageDependencyList().</li>
+		<li>InstanceScanSuiteOnApp() now also accepts different parameter types to specify the app (same as GetAppRecord).</li> 
+		<li>GetType() can now deal with objects that return null.</li>
+		<li>Functions RenderValue() and Clone() can now deal with objects that do not have a default value (like "wiki" GlideElement fields as used in kb_knowledge).</li>
+		<li>AppBuilder() now longer adds the call to x_snc_devtools.AppInstall() in the AppInstall() function - dependency installation should be handled via InstallApp().</li>
+		<li>Function AppBuilderAddSyntaxEditorMacro() is now available for all scopes. Added ATF test and syntax edit macro for the function. Added more robust parameter validation.</li>
+		<li>Function GetPackageDependencyList() now also includes circular dependency packages. And the Dependency Viewer shows the circular dependencies in the "List" view.</li>
+		<li>Function InstallApp() now returns false of circular dependencies are detected.</li>
+		<li>Function InstallApp() now supports the bStopOnError parameter which controls if the installation should stop after the first AppInstall() functions returns false.</li>
+		<li>Refactored the ATF test for RenderValue() to use TestAPI.</li>
+		<li>UI Action "Find Sys Id" now trims the input which makes it more convenient to copy and paste Sys Ids into the modal dialog.</li>
+		<li>The test step configuration "DevTools - Check scoped app sanity" no longer checks if the run_as user associated to a sysauto_script is a technical user or the default admin. When running an ATF test suite via REST API call, a temporary scheduled job is created and associated with the user that triggered the REST API call. This causes the test to fail.</li>
+		<li>The test step configuration "DevTools - Check scoped app sanity" no longer checks if the short_description of a sys_app is populated as this is covered by a CodeSanity check.</li>
+		<li>Added sys_ws_query_parameter to the link directory.</li>
+		<li>GetParentRecord() and the "Up" button now also supports sys_ws_query_parameter.</li>
+	</ol>	
+	
+	<h3>1.55.0 - 2023-02-05</h3>
+	<ol>
+		<li>Added function InstallApp() to execute an application's and all of its dependencies' AppInstall() functions.</li> 
+		<li>Added UI Action "Run Install Scripts" on the sys_app form to execute InstallApp() for the current application.</li>
+		<li>InstallerAPI::Finish() now returns true or false dependening on whether the installation activities were all successful.</li>
+		<li>DocumentationAPI::RenderInstallationInstructionsAppInstall() now refers to the InstallApp() function to run an app's and it's dependencies' AppInstall() functions.</li>
+		<li>Function TableSetAttribute() does not attempt to change the attributes if the attribute value is already set to the intended value and returns true.</li>
+		<li>Test step configuration "DevTools - Check scoped app sanity" now also considers system properties defining the activity fields of a table.</li>
+		<li>Added ATF for RedirectToRecord() - however without actually testing the function as no scripted method has been identified yet.</li>
+		<li>Added ATF for InstanceReset() to verify it is NOT running if no valid safety token is provided.</li>
+	</ol>
+
+	<h3>1.54.0 - 2023-01-25</h3>
+	<ol>
+		<li>Added function IsDerivedFromTable().</li>
+		<li>Added function GetRecordScopeSysId().</li>
+		<li>Function InstanceScanSuiteOnRecord() is now accessible from all scopes and added ATF test.</li>
+		<li>DevToolsWorkerAPI now supports InstanceScanSuiteOnRecord().</li>
+		<li>Function StartWorker() now verifies that the given script include is a valid script include api name and added an ATF test for StartWorker().</li>
+		<li>Added business rule "sys_metadata - Prevent useless checks".</li>
+		<li>The business rule "sys_flow_context - Set domain" now sets the global domain for flows that are configured to run as system.</li>
+		<li>The Dependency Viewer "Dependency List" displayed a dependency count of 0 for each package. This has been fixed.</li>
+		<li>Added table sys_progress_worker to the link directory.</li>
+		<li>Added ATF for function RenderRecordExecutionSchedule().</li>
+		<li>Added chapter "Dependency Management" to the manual.</li>
+	</ol>
+	
+	
+	<h3>1.53.0 - 2023-01-17</h3>
+	<ol>
+		<li>Added "list" mode to the "DevTools Dependency Viewer" page.</li>
+		<li>Added function GetPackageDependencyList().</li>
+		<li>Added function HtmlRenderPageGallery().</li>
+		<li>Added UI script GetFloatValue().</li>
+		<li>Added UI script GetRandomFloat().</li>
+		<li>Added UI script GetRandomInteger().</li>
+		<li>Added UI script GetRandomBoolean().</li>
+		<li>Function RenderRecordSummary() now also considers sys_name.</li>
+	</ol>	
+	
+	<h3>1.52.0 - 2023-01-04</h3>
 	<ol>
 		<li>Added function IsValidUrl().</li>
 		<li>Added function RenderArray().</li>
@@ -1094,13 +1549,13 @@ gs.invalidateCache();
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2020-02-27 11:17:42</sys_created_on>
         <sys_id>e44fd7541b578450a89720a8ec4bcb8c</sys_id>
-        <sys_mod_count>1050</sys_mod_count>
+        <sys_mod_count>1420</sys_mod_count>
         <sys_name>manual</sys_name>
         <sys_package display_value="DevTools" source="x_snc_devtools">d689f6901bd38450a89720a8ec4bcbfd</sys_package>
         <sys_policy/>
         <sys_scope display_value="DevTools">d689f6901bd38450a89720a8ec4bcbfd</sys_scope>
         <sys_update_name>sys_ui_page_e44fd7541b578450a89720a8ec4bcb8c</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2023-01-04 15:28:47</sys_updated_on>
+        <sys_updated_on>2023-11-10 10:14:19</sys_updated_on>
     </sys_ui_page>
 </record_update>

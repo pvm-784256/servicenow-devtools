@@ -21,6 +21,14 @@ InstallerAPI.prototype = {
 			this.m_strContext = strContext + ': ';
 		}
 		this.m_strLog = '\n'+this.m_strContext+'Installation BEGIN\n';
+		
+		var strLegacyMode = gs.getProperty('glide.record.legacy_cross_scope_access_policy_in_script');
+		if (strLegacyMode != 'true')
+		{
+			this.FatalError('The system property "glide.record.legacy_cross_scope_access_policy_in_script" must be set to true during DevTools installation!');
+			return;
+		}
+		
 		if (strContext != '')
 		{
 			var cache = new TransactionCacheAPI('INSTALLER');
@@ -31,6 +39,7 @@ InstallerAPI.prototype = {
 			}
 			cache.SetItem(strContext,true);
 		}
+		
     },
 	
 	IsAborting: function()
@@ -59,6 +68,7 @@ InstallerAPI.prototype = {
 	
 	Finish: function()
 	{
+		var bResult = true;
 		if (this.m_bError == false)
 		{
 			CacheFlushMenu();
@@ -66,13 +76,19 @@ InstallerAPI.prototype = {
 		}
 		else
 		{
+			bResult = false;
 			this.Log(this.m_strContext+'Installation FAILED')
 		}
 		x_snc_devtools.Log(this.m_strLog);
+		return bResult;
 	},
 	
 	GenericAction: function(vResult,strLogSuccess,strLogError)
 	{
+		if (this.IsAborting() == true)
+		{
+			return false;
+		}		
 		if (vResult == false)
 		{
 			this.Error(strLogError);
@@ -118,7 +134,7 @@ InstallerAPI.prototype = {
 		GlideRecordQuery(grRecord);
 		if (grRecord.getRowCount() > 1)
 		{
-			this.Error(strTopic+': There is more than one record matching the specified query. Doing nothing!');
+			this.Error(strTopic+': There is more than one record matching the specified query. No action required.');
 			return false;
 		}
 		if (grRecord.next())
@@ -126,7 +142,7 @@ InstallerAPI.prototype = {
 			var aKeys = GetKeys(valuesUpdate);
 			if (aKeys.length == 0)
 			{
-				this.Log(strTopic+': Record exists. Doing nothing!');
+				this.Log(strTopic+': Record exists. No action required.');
 				return true;
 			}
 			else
@@ -151,6 +167,7 @@ InstallerAPI.prototype = {
 		values = Merge(values,valuesUpdate);
 
 		grRecord.initialize();
+		grRecord.newRecord();
 		GlideRecordSetValues(grRecord,values);
 		var strSysId = GlideRecordInsert(grRecord);
 		if (IsValidSysId(strSysId) == false)
@@ -164,6 +181,15 @@ InstallerAPI.prototype = {
 	
 	RecordSetValue: function(strTopic,strTable,strSysId,strField,vValue)
 	{
+		if (this.IsAborting() == true)
+		{
+			return false;
+		}
+		if (strTable == 'sys_dictionary')
+		{
+			this.Error(strTopic+': RecordSetValue cannot be used on "'+strTable+'". Sys Ids of sys_dictionary entries might differ on instances.');
+			return false;
+		}
 		var vResult = RecordSetValue(strTable,strSysId,strField,vValue);
 		if (vResult == false)
 		{
@@ -173,6 +199,67 @@ InstallerAPI.prototype = {
 		this.Log(strTopic+': Set record '+strTable+': '+strSysId+' value "'+strField+'" to: '+RenderValue(vValue));
 		return true;
 	},
+	
+	RecordDelete: function(strTopic,strTable,strSysId)
+	{
+		if (this.IsAborting() == true)
+		{
+			return false;
+		}
+		
+		var grRecord = GetRecord(strTable,strSysId);
+		if (grRecord == false)
+		{
+			this.Log(strTopic+': Record '+strTable+' / '+strSysId+' does not exist. No action required.');
+			return true;
+		}
+		
+		var bResult = RecordDelete(strTable,strSysId);
+		if (bResult == true)
+		{
+			this.Log(strTopic+': Deleted record: '+strTable+' / '+strSysId);
+		}
+		else
+		{
+			this.Error(strTopic+': Failed to delete record: '+strTable+' / '+strSysId);
+			return false;
+		}
+		return true;
+	},	
+	
+	DictionarySetValue: function(strTopic,strTable,strElement,strField,vValue)
+	{
+		if (this.IsAborting() == true)
+		{
+			return false;
+		}
+		
+		var strItem = GetStringValue(strTable);
+		if (GetStringValue(strElement) != '')
+		{
+			strItem += '.'+strElement;
+		}
+		
+		var grDict = new GlideRecord('sys_dictionary');
+		grDict.addQuery('name','=',strTable);
+		grDict.addQuery('element','=',strElement);
+		grDict.query();
+		if (grDict.next() != true)
+		{
+			this.Error(strTopic+': Could not identify dictionary record for '+strItem+'.');
+			return false;			
+		}
+		
+		var vResult = RecordSetValue('sys_dictionary',grDict.sys_id,strField,vValue,true);
+		if (vResult == false)
+		{
+			this.Error(strTopic+': Failed to set dictionary record for '+strItem+': value "'+strField+'" to: '+RenderValue(vValue));
+			return false;
+		}
+		this.Log(strTopic+': Set dictionary record for  '+strItem+': value "'+strField+'" to: '+RenderValue(vValue));
+		return true;		
+	},
+		
 	
 	CheckTableCrossScopeAccessibility: function(strTable)
 	{
@@ -215,6 +302,33 @@ InstallerAPI.prototype = {
 		}
 	},
 	
+	SetHomePage: function(strUri)
+	{
+		this.SetProperty('glide.login.home',strUri);
+		this.SetProperty('glide.home.page',strUri);
+
+		var strUrl = GetInstanceURL() + 'nav_to.do?uri='+ strUri;
+		
+		this.RecordInsertOrUpdate(
+			'Set home page',
+			'sys_ui_page',
+			{
+				name: 'home',
+				sys_scope: 'global'
+			},
+			{},
+			{
+				html:
+					'<?xml version="1.0" encoding="utf-8" ?>\n'+
+					'<j:jelly trim="false" xmlns:j="jelly:core" xmlns:g="glide" xmlns:j2="null" xmlns:g2="null">\n'+
+					'\t<g2:no_escape>$[\n'+
+					'\t\tx_snc_devtools.HtmlRenderRedirect(\''+strUrl+'\');\n'+
+					'\t]</g2:no_escape>\n'+	
+					'</j:jelly>\n'
+			});		
+		
+	},
+	
 	SetTableAttribute: function(strTable,strAttributeName,strAttributeValue)
 	{
 		if (this.IsAborting() == true)
@@ -238,6 +352,31 @@ InstallerAPI.prototype = {
 
 	},
 	
+	SetTableColumnAttribute: function(strTable,strColumn,strAttributeName,strAttributeValue)
+	{
+		if (this.IsAborting() == true)
+		{
+			return false;
+		}
+		strTable = GetStringValue(strTable);
+		strColumn = GetStringValue(strColumn);
+		strAttributeName = GetStringValue(strAttributeName);
+		strAttributeValue = GetStringValue(strAttributeValue);
+		var bResult = TableColumnSetAttribute(strTable,strColumn,strAttributeName,strAttributeValue);
+		if (bResult == true)
+		{
+			this.Log(
+				'Table column attribute "'+strAttributeName+'" of column "'+strColumn+'" in table "'+strTable+'" is set to "'+strAttributeValue+'".');
+		}
+		else
+		{
+			this.Error(
+				'Table column attribute "'+strAttributeName+'" of column "'+strColumn+'" in table "'+strTable+'" is NOT set to "'+strAttributeValue+'"!');
+		}
+		return bResult;
+		
+	},
+
 	DeleteView: function(strViewName)
 	{
 		if (this.IsAborting() == true)
@@ -270,6 +409,63 @@ InstallerAPI.prototype = {
 		}
 		return true;
 	},	
+	
+	DeleteUISection: function(strView,strTable,strScope)
+	{
+		if (this.IsAborting() == true)
+		{
+			return false;
+		}
+		
+		strView = GetStringValue(strView);
+		strTable = GetStringValue(strTable);
+		strScope = GetStringValue(strScope);
+		
+		var grView = new GlideRecord('sys_ui_view');
+		grView.addQuery('title','=',strView);
+		grView.query();
+		if (grView.getRowCount() != 1)
+		{
+			var grView = new GlideRecord('sys_ui_view');
+			grView.addQuery('name','=',strView);
+			grView.query();
+			if (grView.getRowCount() != 1)
+			{
+				this.Log('View "'+strView+'" does not exist. No action required.');	
+				return true;
+			}
+		}
+		
+		grView.next();
+		
+		var grSection = new GlideRecord('sys_ui_section');
+		grSection.addQuery('name','=',strTable);
+		grSection.addQuery('view','=',grView.sys_id);
+		if (strScope != '')
+		{
+			grSection.addQuery('sys_scope','=',strScope);
+		}
+		grSection.query();
+		if (grSection.getRowCount() == 0)
+		{
+			this.Log('View "'+strView+'" UI Section for table "'+strTable+'" does not exist. No action required.');
+			return true;
+		}
+		while (grSection.next())
+		{
+			var bResult = RecordDelete('sys_ui_section',grSection.sys_id);
+			if (bResult == true)
+			{
+				this.Log('Deleted UI Section in View "'+strView+'" for table "'+strTable+'".');
+			}
+			else
+			{
+				this.Error('Failed to delete UI Section in View "'+strView+'" for table "'+strTable+'".');
+				return false;
+			}
+		}
+		return true;
+	},		
 	
 		
 	InstallGlobalSystemProperty: function(strName, strType, strDescription)
@@ -345,6 +541,7 @@ InstallerAPI.prototype = {
 
 		var grSPCM2 = new GlideRecord('sys_properties_category_m2m');
 		grSPCM2.initialize();
+		grSPCM2.sys_scope = grSPC.sys_scope;
 		grSPCM2.category = strSystemPropertyCategorySysId;
 		grSPCM2.property = strSystemPropertySysId;
 		grSPCM2.order = nOrder;
@@ -392,6 +589,21 @@ InstallerAPI.prototype = {
 	ActivateAppMenu: function(strSysId,bActive)
 	{
 		return this.ActivateRecord(strSysId,bActive,'sys_app_application','Application Menu','active','title');
+	},		
+	
+	ActivateViewRule: function(strSysId,bActive)
+	{
+		return this.ActivateRecord(strSysId,bActive,'sysrule_view','View Rule','active','name');
+	},			
+	
+	ActivateACL: function(strSysId,bActive)
+	{
+		return this.ActivateRecord(strSysId,bActive,'sys_security_acl','Access Control','active','name','operation');
+	},			
+	
+	ActivateNotification: function(strSysId,bActive)
+	{
+		return this.ActivateRecord(strSysId,bActive,'sysevent_email_action','Notification','active','name');
 	},		
 	
 	ShowFieldClass: function(strName,bVisible)
@@ -442,7 +654,7 @@ InstallerAPI.prototype = {
 		var grRecord = GetRecord(strTable,strSysId);
 		if (IsValidRecord(grRecord) == false)
 		{
-			this.Log(strRecordClassName+' with sys_id "'+strSysId+'" does not exist. Doing nothing.');
+			this.Log(strRecordClassName+' with sys_id "'+strSysId+'" does not exist. No action required.');
 			return false;
 		}
 		
@@ -467,6 +679,61 @@ InstallerAPI.prototype = {
 		this.Log(strRecordClassName+' '+strName+' is set '+((bActive)?('active'):('inactive'))+'.');
 		return strSysId;		
 	},
+	
+	InsertFieldToFormSection: function(strUiSectionSysId, strField, nPosition)
+	{
+		if (this.IsAborting() == true)
+		{
+			return false;
+		}
+		strField = GetStringValue(strField);
+		nPosition = GetIntegerValue(nPosition);
+		
+		var grUiSection = GetRecord('sys_ui_section',strUiSectionSysId);
+		if (IsValidRecord(grUiSection) == false)
+		{
+			this.Log('UI Section with sys_id "'+strUiSectionSysId+'" does not exist. Cannot add field "'+strField+'".');
+			return false;
+		}
+		
+		var strTable = GetStringValue(grUiSection.getDisplayValue('name'));
+		
+		var grUiElement = new GlideRecord('sys_ui_element');
+		grUiElement.addQuery('sys_ui_section','=',strUiSectionSysId);
+		grUiElement.addQuery('element','=',strField);
+		grUiElement.query();
+		if (grUiElement.getRowCount() > 0)
+		{
+			this.Log('UI Section on table "'+strTable+'" with sys_id "'+strUiSectionSysId+'" already contains field "'+strField+'". No action required.');
+			return false;
+		}
+
+		var grUiElements = new GlideRecord('sys_ui_element');
+		grUiElements.addQuery('sys_ui_section','=',strUiSectionSysId);
+		grUiElements.addQuery('position','>=',nPosition);
+		grUiElements.query();
+		while (grUiElements.next())
+		{
+			grUiElements.position = grUiElements.position + 1;
+			GlideRecordUpdate(grUiElements);
+		}
+
+		this.RecordInsertOrUpdate(
+			'Add the "'+strField+'" field to a section of "'+strTable+'"',
+			'sys_ui_element',
+			{
+				element: strField,
+				sys_ui_section: strUiSectionSysId
+			},
+			{
+				element: strField,
+				sys_ui_section: strUiSectionSysId,
+				position: nPosition
+			},
+			{});
+
+		
+	},
 		
 	
     type: 'InstallerAPI'
@@ -475,13 +742,13 @@ InstallerAPI.prototype = {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2021-08-27 10:49:10</sys_created_on>
         <sys_id>704694a81b1a74505331b8449b4bcb69</sys_id>
-        <sys_mod_count>66</sys_mod_count>
+        <sys_mod_count>105</sys_mod_count>
         <sys_name>InstallerAPI</sys_name>
         <sys_package display_value="DevTools WORK IN PROGRESS" source="x_snc_devtools">d689f6901bd38450a89720a8ec4bcbfd</sys_package>
         <sys_policy>protected</sys_policy>
         <sys_scope display_value="DevTools WORK IN PROGRESS">d689f6901bd38450a89720a8ec4bcbfd</sys_scope>
         <sys_update_name>sys_script_include_704694a81b1a74505331b8449b4bcb69</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2022-05-31 09:28:12</sys_updated_on>
+        <sys_updated_on>2023-11-09 07:18:09</sys_updated_on>
     </sys_script_include>
 </record_update>
